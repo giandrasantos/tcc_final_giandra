@@ -35,17 +35,10 @@ session_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    exit(json_encode([
-        'success' => false,
-        'message' => 'Não autenticado. Faça login para continuar.',
-    ]));
-}
-
 // ── Dependencies ──────────────────────────────────────────────────────────────
 require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/includes/auth.php';
+requireApiRole('aluno');
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 function jsonError(int $code, string $message): never
@@ -158,7 +151,7 @@ try {
         'INSERT INTO progress (user_id, jogo, melhor_pontuacao, partidas, acertos, erros)
               VALUES (:user_id, :jogo, :pontuacao, 1, :acertos, :erros)
          ON DUPLICATE KEY UPDATE
-              melhor_pontuacao = IF(:pontuacao2 > melhor_pontuacao, :pontuacao2, melhor_pontuacao),
+              melhor_pontuacao = IF(:pontuacao2 > melhor_pontuacao, :pontuacao3, melhor_pontuacao),
               partidas = partidas + 1,
               acertos = acertos + :acertos2,
               erros = erros + :erros2'
@@ -170,6 +163,7 @@ try {
         ':acertos'    => $acertos,
         ':erros'      => $erros,
         ':pontuacao2' => $pontuacao,
+        ':pontuacao3' => $pontuacao,
         ':acertos2'   => $acertos,
         ':erros2'     => $erros,
     ]);

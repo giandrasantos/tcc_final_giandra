@@ -875,6 +875,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: min(900px, calc(100vw - 2rem));
   z-index: 50;
   pointer-events: none;
   text-align: center;
@@ -892,7 +893,9 @@
   text-shadow: none;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
 }
 
 @keyframes motivationalPop {
@@ -1004,7 +1007,9 @@
   padding: var(--space-2xl);
   box-shadow: var(--shadow-lg), var(--glow-primary);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: resultCardEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -1447,6 +1452,12 @@
 }
 
 .diff-card.easy .diff-card-xp { color: var(--success); }
+
+@media (max-width: 767px) {
+  .game-container {
+    padding-inline: 0;
+  }
+}
 
 .diff-card.medium {
   color: var(--warning);

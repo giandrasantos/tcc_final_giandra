@@ -29,9 +29,11 @@ Plataforma Web Educacional Gamificada desenvolvida para a empresa **Studio Game 
 studio-game-over/
 │
 ├── index.php                  ← Landing Page pública oficial
-├── login.php                  ← Tela de Login de Alunos
-├── cadastro.php               ← Tela de Cadastro com seleção de Avatar Gamer
+├── login.php                  ← Login para alunos e professores
+├── cadastro.php               ← Cadastro para alunos e professores
 ├── dashboard.php              ← Painel Principal do Estudante
+├── professor_dashboard.php    ← Desempenho dos alunos para professores
+├── professor_turmas.php       ← Comparação de desempenho conjunto por série
 ├── perfil.php                 ← Perfil & Troca de Avatar
 ├── ranking.php                ← Ranking Global e por Matéria
 ├── historico.php              ← Histórico Completo de Partidas
@@ -43,7 +45,7 @@ studio-game-over/
 │
 ├── api/
 │   ├── login.php              ← Endpoint de Autenticação
-│   ├── cadastro.php           ← Endpoint de Cadastro de Alunos
+│   ├── cadastro.php           ← Endpoint de Cadastro de Alunos e Professores
 │   ├── logout.php             ← Endpoint de Logout
 │   ├── get-questions.php      ← Busca de Questões Sanitizadas (Segurança de Gabarito no Servidor)
 │   ├── verify-answer.php      ← Validação de Resposta, Dica e Explicação
@@ -65,6 +67,7 @@ studio-game-over/
 │   │   ├── style.css          ← Design System Base & Variáveis CSS
 │   │   ├── login.css          ← Estilos da Tela de Autenticação
 │   │   ├── dashboard.css      ← Estilos do Painel do Estudante
+│   │   ├── professor-dashboard.css ← Estilos dos painéis do professor
 │   │   ├── jogos.css          ← Estilos dos Jogos e Telas de Resultado
 │   │   └── responsivo.css     ← Media Queries (Mobile-First)
 │   │
@@ -75,7 +78,9 @@ studio-game-over/
 │       └── portugues.js       ← Lógica do Jogo de Português
 │
 ├── database/
-│   └── database.sql           ← Schema MySQL + Seed com 60 Questões + Conquistas
+│   ├── database.sql           ← Schema MySQL + Seed com 60 Questões + Conquistas
+│   └── migrations/
+│       └── 20261009_add_user_roles.sql ← Adiciona tipos de conta a bancos existentes
 │
 └── README.md                  ← Documentação do Projeto
 ```
@@ -99,6 +104,15 @@ studio-game-over/
 
 4. **Acesse a Aplicação:**
    - Abra o navegador no endereço: `http://localhost/studio-game-over`
+
+5. **Banco já existente:**
+   - Execute uma vez o arquivo `database/migrations/20261009_add_user_roles.sql` no phpMyAdmin para adicionar o tipo de conta e permitir série vazia para professores.
+   - Cadastros existentes são mantidos como alunos. No login, selecione o tipo correspondente.
+
+6. **Contas:**
+   - No login e no cadastro, selecione **Aluno** ou **Professor**.
+   - O painel do professor mostra o desempenho individual dos alunos e gráficos comparativos agrupados por série escolar.
+   - Contas de professor não podem acessar os jogos, o ranking ou o histórico dos alunos.
 
 ---
 

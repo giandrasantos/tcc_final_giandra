@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Redirect if already authenticated
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: ' . (($_SESSION['tipo_usuario'] ?? 'aluno') === 'professor' ? 'professor_dashboard.php' : 'dashboard.php'));
     exit;
 }
 ?>
@@ -34,8 +34,10 @@ if (isset($_SESSION['user_id'])) {
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= filemtime(__DIR__ . '/assets/css/style.css') ?>">
+    <link rel="stylesheet" href="assets/css/login.css?v=<?= filemtime(__DIR__ . '/assets/css/login.css') ?>">
+    <link rel="stylesheet" href="assets/css/accessibility.css?v=<?= filemtime(__DIR__ . '/assets/css/accessibility.css') ?>">
+    <script src="assets/js/accessibility.js?v=<?= filemtime(__DIR__ . '/assets/js/accessibility.js') ?>" defer></script>
 </head>
 <body class="auth-body auth-cadastro-body">
 
@@ -128,7 +130,7 @@ if (isset($_SESSION['user_id'])) {
                         <i data-lucide="user-plus"></i>
                     </div>
                     <h2 class="auth-card-title">Crie sua conta</h2>
-                    <p class="auth-card-subtitle">Escolha seu personagem e comece a jogar</p>
+                    <p class="auth-card-subtitle">Selecione seu tipo de conta e preencha seus dados</p>
                 </div>
 
                 <!-- Feedback message -->
@@ -137,6 +139,19 @@ if (isset($_SESSION['user_id'])) {
                 <!-- Registration Form -->
                 <form id="cadastro-form" novalidate autocomplete="off">
 
+                    <div class="form-group">
+                        <label for="tipo_usuario" class="form-label">
+                            <i data-lucide="users"></i> Tipo de conta
+                        </label>
+                        <div class="input-wrapper">
+                            <select id="tipo_usuario" name="tipo_usuario" class="form-control form-select" required aria-required="true">
+                                <option value="aluno" selected>Aluno</option>
+                                <option value="professor">Professor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="student-only-fields">
                     <!-- ===== AVATAR SELECTION ===== -->
                     <fieldset class="avatar-fieldset">
                         <legend class="avatar-legend">
@@ -410,6 +425,7 @@ if (isset($_SESSION['user_id'])) {
                         <input type="hidden" id="avatar" name="avatar" value="avatar1">
 
                     </fieldset><!-- /.avatar-fieldset -->
+                    </div>
 
                     <!-- ===== FORM FIELDS ===== -->
 
@@ -534,6 +550,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
 
                     <!-- Série Escolar -->
+                    <div class="student-only-fields">
                     <div class="form-group">
                         <label for="serie" class="form-label">
                             <i data-lucide="graduation-cap"></i> Série Escolar
@@ -548,6 +565,7 @@ if (isset($_SESSION['user_id'])) {
                             </select>
                         </div>
                         <span class="field-error" id="erro-serie" hidden></span>
+                    </div>
                     </div>
 
                     <!-- Terms -->
@@ -686,6 +704,21 @@ if (isset($_SESSION['user_id'])) {
             this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
         });
 
+        const accountType = document.getElementById('tipo_usuario');
+        const studentFields = document.querySelectorAll('.student-only-fields');
+        const seriesInput = document.getElementById('serie');
+
+        function updateRoleFields() {
+            const isStudent = accountType.value === 'aluno';
+            studentFields.forEach(field => {
+                field.hidden = !isStudent;
+            });
+            seriesInput.required = isStudent;
+        }
+
+        accountType.addEventListener('change', updateRoleFields);
+        updateRoleFields();
+
         /* ─────────────────────────────────────────
            FIELD-LEVEL HELPERS
         ───────────────────────────────────────── */
@@ -761,6 +794,7 @@ if (isset($_SESSION['user_id'])) {
             const senha    = document.getElementById('senha').value;
             const confirmar = document.getElementById('confirmar-senha').value;
             const serie    = document.getElementById('serie').value;
+            const isStudent = accountType.value === 'aluno';
 
             if (!nome) {
                 showFieldError('erro-nome', 'Por favor, informe seu nome.');
@@ -808,7 +842,7 @@ if (isset($_SESSION['user_id'])) {
                 valid = false;
             }
 
-            if (!serie) {
+            if (isStudent && !serie) {
                 showFieldError('erro-serie', 'Por favor, selecione sua série.');
                 document.getElementById('serie').classList.add('input-invalid');
                 valid = false;
@@ -842,7 +876,7 @@ if (isset($_SESSION['user_id'])) {
                 if (data.success) {
                     showFeedback('🎉 ' + (data.message || 'Conta criada com sucesso! Redirecionando...'), 'success');
                     setTimeout(function () {
-                        window.location.href = 'dashboard.php';
+                        window.location.href = data.redirect || 'dashboard.php';
                     }, 1200);
                 } else {
                     showFeedback(data.message || 'Erro ao criar conta. Tente novamente.', 'error');

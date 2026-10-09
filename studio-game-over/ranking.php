@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/auth.php';
-requireAuth();
+requireRole('aluno');
 refreshSessionCache();
 
 $pageTitle = 'Ranking | MathPlay Solutions';
@@ -19,18 +19,20 @@ $filtro = in_array($_GET['filtro'] ?? 'geral', ['geral', 'matematica', 'portugue
 
 if ($filtro === 'geral') {
     $stmt = $pdo->prepare(
-        'SELECT id, nome, username, avatar, nivel, xp, pontuacao
+        'SELECT id, nome, username, avatar, serie, nivel, xp, pontuacao
            FROM users
+          WHERE tipo_usuario = \'aluno\'
           ORDER BY pontuacao DESC, xp DESC
           LIMIT 10'
     );
     $stmt->execute();
 } else {
     $stmt = $pdo->prepare(
-        'SELECT u.id, u.nome, u.username, u.avatar, u.nivel, u.xp, p.melhor_pontuacao as pontuacao
+        'SELECT u.id, u.nome, u.username, u.avatar, u.serie, u.nivel, u.xp, p.melhor_pontuacao as pontuacao
            FROM users u
            JOIN progress p ON u.id = p.user_id
-          WHERE p.jogo = :jogo
+          WHERE u.tipo_usuario = \'aluno\'
+            AND p.jogo = :jogo
           ORDER BY p.melhor_pontuacao DESC, u.xp DESC
           LIMIT 10'
     );
@@ -140,7 +142,7 @@ $levelNames = [1 => 'Iniciante', 2 => 'Aprendiz', 3 => 'Avançado', 4 => 'Especi
                                         <div class="small text-secondary">@<?= htmlspecialchars($r['username']) ?></div>
                                     </div>
                                 </td>
-                                <td class="p-3 text-secondary">Ensino Fundamental II</td>
+                                <td class="p-3 text-secondary"><?= $r['serie'] !== null ? htmlspecialchars(str_replace('°', 'º', $r['serie']), ENT_QUOTES, 'UTF-8') . ' Ano' : '—' ?></td>
                                 <td class="p-3"><span class="badge badge-easy">Nível <?= $r['nivel'] ?></span></td>
                                 <td class="p-3 text-primary font-display"><?= number_format($r['xp']) ?> XP</td>
                                 <td class="p-3 text-right text-warning font-display fs-5"><?= number_format($r['pontuacao']) ?> pts</td>

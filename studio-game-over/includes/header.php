@@ -9,7 +9,7 @@
  *   require_once 'includes/header.php';
  *
  * Outputs everything from <!DOCTYPE html> through the closing </nav> tag.
- * Wrap your page content in <main> and close it in footer.php.
+ * Wrap your page content in <main> and close it in the shared footer include.
  */
 
 // ---------------------------------------------------------------------------
@@ -43,6 +43,8 @@ function navClass(string $filename): string
 // Jogos sub-pages that should keep the Jogos dropdown highlighted
 $jogosPages = ['matematica.php', 'portugues.php'];
 $jogosActive = in_array($currentPage, $jogosPages, true) ? 'active' : '';
+$dashboardActive = in_array($currentPage, ['dashboard.php', 'professor_dashboard.php'], true) ? 'active' : '';
+$isProfessor = ($_SESSION['tipo_usuario'] ?? 'aluno') === 'professor';
 
 // ---------------------------------------------------------------------------
 // Session user data (populated by auth.php / refreshSessionCache)
@@ -51,6 +53,8 @@ $sessionNome   = htmlspecialchars($_SESSION['user_nome']   ?? 'Jogador',       E
 $sessionNivel  = (int) ($_SESSION['user_nivel']  ?? 1);
 $sessionXp     = (int) ($_SESSION['user_xp']     ?? 0);
 $sessionAvatar = htmlspecialchars($_SESSION['user_avatar'] ?? '',               ENT_QUOTES, 'UTF-8');
+$sessionRole   = $_SESSION['tipo_usuario'] ?? 'aluno';
+$dashboardPath = $isProfessor ? 'professor_dashboard.php' : 'dashboard.php';
 
 // ---------------------------------------------------------------------------
 // Dynamic relative asset & link base paths (0 hardcoded paths)
@@ -91,14 +95,15 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
     <!-- ------------------------------------------------------------------ -->
     <!-- Global stylesheets                                                  -->
     <!-- ------------------------------------------------------------------ -->
-    <link rel="stylesheet" href="<?= $assetBase ?>/css/style.css" />
-    <link rel="stylesheet" href="<?= $assetBase ?>/css/responsivo.css" />
+    <link rel="stylesheet" href="<?= $assetBase ?>/css/style.css?v=<?= filemtime(dirname(__DIR__) . '/assets/css/style.css') ?>" />
+    <link rel="stylesheet" href="<?= $assetBase ?>/css/responsivo.css?v=<?= filemtime(dirname(__DIR__) . '/assets/css/responsivo.css') ?>" />
+    <link rel="stylesheet" href="<?= $assetBase ?>/css/accessibility.css?v=<?= filemtime(dirname(__DIR__) . '/assets/css/accessibility.css') ?>" />
 
     <!-- ------------------------------------------------------------------ -->
     <!-- Page-specific stylesheets                                           -->
     <!-- ------------------------------------------------------------------ -->
     <?php foreach ($extraCss as $cssFile): ?>
-    <link rel="stylesheet" href="<?= $assetBase . '/' . htmlspecialchars($cssFile, ENT_QUOTES, 'UTF-8') ?>" />
+    <link rel="stylesheet" href="<?= $assetBase . '/' . htmlspecialchars($cssFile, ENT_QUOTES, 'UTF-8') ?>?v=<?= filemtime(dirname(__DIR__) . '/assets/' . $cssFile) ?>" />
     <?php endforeach; ?>
 
     <!-- ------------------------------------------------------------------ -->
@@ -112,13 +117,13 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
 <!-- ======================================================================== -->
 <!-- MAIN NAVIGATION                                                           -->
 <!-- ======================================================================== -->
-<nav class="main-nav" role="navigation" aria-label="Navegação principal">
+<nav class="main-nav<?= $isProfessor ? ' main-nav--professor' : '' ?>" role="navigation" aria-label="Navegação principal">
 
     <!-- ------------------------------------------------------------------ -->
     <!-- Brand / Logo                                                        -->
     <!-- ------------------------------------------------------------------ -->
     <div class="nav-brand">
-        <a href="<?= $linkBase ?>index.php" class="brand-link" aria-label="Ir para o Início">
+        <a href="<?= $linkBase . ($isProfessor ? 'professor_dashboard.php' : 'index.php') ?>" class="brand-link" aria-label="<?= $isProfessor ? 'Ir para o Painel do Professor' : 'Ir para o Início' ?>">
             <div class="brand-logo" aria-hidden="true">
                 <i data-lucide="gamepad-2"></i>
             </div>
@@ -150,6 +155,7 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
     <!-- ------------------------------------------------------------------ -->
     <ul class="nav-menu" id="navMenu" role="menubar">
 
+        <?php if (!$isProfessor): ?>
         <!-- Início / Home -->
         <li class="nav-item" role="none">
             <a
@@ -162,22 +168,40 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
                 <span>Início</span>
             </a>
         </li>
+        <?php endif; ?>
 
         <?php if (isset($_SESSION['user_id'])): ?>
         <!-- Dashboard (para usuários logados) -->
         <li class="nav-item" role="none">
             <a
-                href="<?= $linkBase ?>dashboard.php"
-                class="nav-link <?= navClass('dashboard.php') ?>"
+                href="<?= $linkBase . $dashboardPath ?>"
+                class="nav-link <?= $dashboardActive ?>"
+                aria-label="<?= $isProfessor ? 'Painel do Professor' : 'Dashboard' ?>"
                 role="menuitem"
-                aria-current="<?= ($currentPage === 'dashboard.php') ? 'page' : 'false' ?>"
+                aria-current="<?= $dashboardActive !== '' ? 'page' : 'false' ?>"
             >
                 <i data-lucide="layout-dashboard" aria-hidden="true"></i>
-                <span>Dashboard</span>
+                <span><?= $sessionRole === 'professor' ? 'Painel do Professor' : 'Dashboard' ?></span>
             </a>
         </li>
         <?php endif; ?>
 
+        <?php if ($isProfessor): ?>
+        <li class="nav-item" role="none">
+            <a
+                href="<?= $linkBase ?>professor_turmas.php"
+                class="nav-link <?= navClass('professor_turmas.php') ?>"
+                aria-label="Desempenho das Turmas"
+                role="menuitem"
+                aria-current="<?= ($currentPage === 'professor_turmas.php') ? 'page' : 'false' ?>"
+            >
+                <i data-lucide="chart-column-increasing" aria-hidden="true"></i>
+                <span>Desempenho das Turmas</span>
+            </a>
+        </li>
+        <?php endif; ?>
+
+        <?php if (!$isProfessor): ?>
         <!-- Jogos (dropdown) -->
         <li class="nav-item nav-item--dropdown <?= $jogosActive ?>" role="none">
             <button
@@ -240,12 +264,14 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
                 <span>Histórico</span>
             </a>
         </li>
+        <?php endif; ?>
 
         <!-- Perfil -->
         <li class="nav-item" role="none">
             <a
                 href="<?= $linkBase ?>perfil.php"
                 class="nav-link <?= navClass('perfil.php') ?>"
+                aria-label="Perfil"
                 role="menuitem"
                 aria-current="<?= ($currentPage === 'perfil.php') ? 'page' : 'false' ?>"
             >
@@ -259,9 +285,10 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
     <!-- ------------------------------------------------------------------ -->
     <!-- User info panel                                                     -->
     <!-- ------------------------------------------------------------------ -->
-    <div class="nav-user" aria-label="Informações do jogador">
+    <div class="nav-user" aria-label="<?= $isProfessor ? 'Conta do professor' : 'Informações do jogador' ?>">
 
         <!-- XP / Level badge -->
+        <?php if (!$isProfessor): ?>
         <div class="nav-user-stats" aria-label="Nível <?= $sessionNivel ?>, <?= $sessionXp ?> XP">
             <span class="user-level-badge" title="Nível atual">
                 <i data-lucide="zap" aria-hidden="true"></i>
@@ -271,6 +298,7 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
                 <?= number_format($sessionXp, 0, ',', '.') ?>&nbsp;XP
             </span>
         </div>
+        <?php endif; ?>
 
         <!-- Avatar + name link to perfil -->
         <a href="<?= $linkBase ?>perfil.php" class="nav-user-profile" aria-label="Ver perfil de <?= $sessionNome ?>">
@@ -301,7 +329,7 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
 </nav><!-- /.main-nav -->
 
 <!-- ======================================================================== -->
-<!-- MAIN CONTENT — opened here, closed in footer.php                         -->
+<!-- MAIN CONTENT — opened here, closed at the end of the page                -->
 <!-- ======================================================================== -->
 <main id="main-content" tabindex="-1">
 
@@ -309,10 +337,11 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
 <!-- Global JS (loaded early so helpers are available to page scripts)   -->
 <!-- ------------------------------------------------------------------ -->
 <script src="<?= $assetBase ?>/js/main.js" defer></script>
+<script src="<?= $assetBase ?>/js/accessibility.js?v=<?= filemtime(dirname(__DIR__) . '/assets/js/accessibility.js') ?>" defer></script>
 
 <script>
     // Initialise Lucide icons rendered up to this point (nav icons).
-    // footer.php calls this again to cover any icons added after.
+    // Initialize icons rendered in the page.
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
@@ -335,10 +364,10 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
             btn.classList.toggle('nav-hamburger--open');
         });
 
-        // Close menu when a link is clicked (mobile UX)
+        // Keep the mobile menu open while its Jogos submenu is being toggled.
         menu.querySelectorAll('a, button').forEach(function (el) {
             el.addEventListener('click', function () {
-                if (menu.classList.contains('nav-menu--open')) {
+                if (!el.classList.contains('nav-dropdown-toggle') && menu.classList.contains('nav-menu--open')) {
                     btn.setAttribute('aria-expanded', 'false');
                     menu.classList.remove('nav-menu--open');
                     btn.classList.remove('nav-hamburger--open');

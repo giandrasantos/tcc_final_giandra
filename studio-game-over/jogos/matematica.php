@@ -6,7 +6,7 @@
 
 require_once dirname(__DIR__) . '/config/database.php';
 require_once dirname(__DIR__) . '/includes/auth.php';
-requireAuth();
+requireRole('aluno');
 refreshSessionCache();
 
 $dificuldadeRaw = strtolower($_GET['dificuldade'] ?? '');
@@ -170,6 +170,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
             <div class="result-badge mb-3" style="font-size: 4rem;">🎯</div>
             <h1 class="font-display text-gradient display-title">Partida Finalizada!</h1>
             <p class="text-secondary fs-5" id="result-subtitle">Você demonstrou um excelente raciocínio matemático!</p>
+            <p id="save-status" class="text-secondary" role="status" aria-live="polite">Salvando partida...</p>
 
             <div class="grid-4 gap-md my-4">
                 <div class="card p-3 bg-tertiary">

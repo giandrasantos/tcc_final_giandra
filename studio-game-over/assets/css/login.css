@@ -855,3 +855,15 @@ body.auth-body::before {
     font-size: 1.25rem;
   }
 }
+
+/* Keep the complete registration form in the page flow instead of clipping it
+   inside the scrollable login panel. */
+.auth-cadastro-body {
+  align-items: flex-start;
+}
+
+.auth-cadastro-body .auth-form-side--wide {
+  max-height: none;
+  overflow: visible;
+  justify-content: flex-start;
+}

@@ -38,6 +38,110 @@ a.btn,
   .container-lg {
     padding-inline: 1rem;
   }
+
+  #main-content {
+    padding-top: 70px;
+  }
+
+  .btn,
+  .nav-link,
+  .nav-dropdown-link {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+  }
+
+  .game-container {
+    padding-inline: 0;
+  }
+
+  .game-header,
+  .game-question-card,
+  .answer-option,
+  #question-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .game-card-header > div,
+  .banner-info {
+    min-width: 0;
+  }
+
+  .game-card-title,
+  .game-card-desc,
+  .banner-greeting,
+  .section-title,
+  .section-subtitle {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 539px) {
+  .main-nav {
+    gap: 0.5rem;
+    padding-inline: 0.75rem;
+  }
+
+  .nav-brand {
+    min-width: 0;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .nav-user {
+    gap: 0.25rem;
+  }
+
+  .nav-user-profile {
+    padding: 0.2rem;
+  }
+
+  .dashboard-wrap {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .profile-details .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-details .grid-3 > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .game-card {
+    padding: 1.25rem;
+    gap: 1.1rem;
+  }
+
+  .game-card-header {
+    gap: 0.75rem;
+  }
+
+  .game-icon-wrap {
+    width: 52px;
+    height: 52px;
+  }
+
+  .game-header-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .game-metrics {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem !important;
+    flex-wrap: wrap;
+  }
+
+  .game-metrics > * {
+    flex: 1 1 70px;
+    min-width: 0;
+  }
 }
 
 /* ── Grid: colapsa para 1 coluna no mobile ─────────────────────────────────── */
@@ -112,6 +216,19 @@ a.btn,
     width: 100%;
     min-height: 52px;
     justify-content: flex-start;
+  }
+
+  .nav-dropdown {
+    position: static;
+    min-width: 0;
+    margin: 0 0 0.5rem 1rem;
+    transform: none;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .nav-item--dropdown.dropdown--open .nav-dropdown {
+    transform: none;
   }
 
   /* Esconder nome e XP do usuário no mobile */
@@ -516,6 +633,15 @@ a.btn,
 
   .nav-link {
     padding: 0.5rem;
+  }
+
+  .main-nav--professor .nav-link span {
+    display: inline;
+  }
+
+  .main-nav--professor .nav-link {
+    padding-inline: 0.35rem;
+    font-size: 0.72rem;
   }
 }
 

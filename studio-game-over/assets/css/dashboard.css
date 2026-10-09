@@ -9,7 +9,7 @@
 .dashboard-wrap {
   max-width: 1360px;
   margin: 0 auto;
-  padding: 2.5rem 2rem 5rem 2rem;
+  padding: 1.5rem 2rem 5rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -236,64 +236,6 @@
   height: 14px;
   color: var(--secondary, #FF007F);
 }
-
-/* Call to Action Buttons */
-.banner-cta {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  align-items: center;
-  z-index: 5;
-}
-
-.btn-banner-play {
-  background: linear-gradient(135deg, var(--secondary, #FF007F), var(--primary, #9D4EDD));
-  color: #FFFFFF;
-  padding: 0.75rem 1.35rem;
-  font-family: var(--font-display, 'Orbitron', monospace);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  border-radius: var(--radius-md, 12px);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 20px rgba(255, 0, 127, 0.4);
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-.btn-banner-play:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(255, 0, 127, 0.6);
-  color: #FFFFFF;
-}
-
-.btn-banner-profile {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-color, rgba(255, 0, 127, 0.35));
-  color: var(--text-primary, #FFFFFF);
-  padding: 0.75rem 1.35rem;
-  font-family: var(--font-display, 'Orbitron', monospace);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  border-radius: var(--radius-md, 12px);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-.btn-banner-profile:hover {
-  background: rgba(157, 78, 221, 0.25);
-  border-color: var(--secondary, #FF007F);
-  color: #FFFFFF;
-}
-
 
 /* --------------------------------------------------------------------------
    3. STATS CARDS GRID
@@ -524,55 +466,35 @@
   font-weight: 700;
 }
 
-/* Difficulty Selector */
-.difficulty-selector {
+/* Game level selection */
+.game-play-form {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  background: rgba(15, 11, 30, 0.85);
-  padding: 6px;
-  border-radius: var(--radius-md, 14px);
-  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
 }
 
-.diff-btn {
-  flex: 1;
-  padding: 0.65rem 0.5rem;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm, 8px);
+.game-difficulty-select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(15, 11, 30, 0.9);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.2));
+  border-radius: var(--radius-md, 12px);
   font-family: var(--font-display, 'Orbitron', monospace);
-  font-size: 0.775rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-muted, #8A7BA8);
+  color: #FFFFFF;
   cursor: pointer;
-  transition: all 0.2s ease;
   text-transform: uppercase;
-  text-align: center;
 }
 
-.diff-btn:hover {
+.game-difficulty-select option {
+  background: #181130;
   color: #FFFFFF;
 }
 
-.diff-btn.active.diff-btn--easy {
-  background: rgba(0, 230, 118, 0.25);
-  color: var(--success, #00E676);
-  border-color: var(--success, #00E676);
-  box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
-}
-
-.diff-btn.active.diff-btn--medium {
-  background: rgba(255, 215, 0, 0.25);
-  color: var(--warning, #FFD700);
-  border-color: var(--warning, #FFD700);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-}
-
-.diff-btn.active.diff-btn--hard {
-  background: rgba(255, 42, 109, 0.25);
-  color: var(--danger, #FF2A6D);
-  border-color: var(--danger, #FF2A6D);
-  box-shadow: 0 0 10px rgba(255, 42, 109, 0.3);
+.game-difficulty-select:focus-visible {
+  outline: 2px solid var(--primary-light, #C77DFF);
+  outline-offset: 2px;
 }
 
 .btn-play-game {
@@ -651,6 +573,25 @@
 .achievement-card.achievement--unlocked {
   border-color: var(--secondary, #FF007F);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(255, 0, 127, 0.25);
+}
+
+.profile-details {
+  min-width: 0;
+  flex: 1 1 360px;
+}
+
+.profile-details h1 {
+  overflow-wrap: anywhere;
+}
+
+.profile-details > .flex.gap-md > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.avatar-option {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .achievement-icon-wrap {
@@ -949,14 +890,9 @@
     align-items: flex-start;
   }
 
-  .banner-cta {
+  .banner-info {
+    min-width: 0;
     width: 100%;
-  }
-
-  .btn-banner-play,
-  .btn-banner-profile {
-    flex: 1;
-    justify-content: center;
   }
 
   .games-grid {

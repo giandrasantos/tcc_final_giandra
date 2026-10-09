@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Redirect if already authenticated
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: ' . (($_SESSION['tipo_usuario'] ?? 'aluno') === 'professor' ? 'professor_dashboard.php' : 'dashboard.php'));
     exit;
 }
 ?>
@@ -34,8 +34,10 @@ if (isset($_SESSION['user_id'])) {
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= filemtime(__DIR__ . '/assets/css/style.css') ?>">
+    <link rel="stylesheet" href="assets/css/login.css?v=<?= filemtime(__DIR__ . '/assets/css/login.css') ?>">
+    <link rel="stylesheet" href="assets/css/accessibility.css?v=<?= filemtime(__DIR__ . '/assets/css/accessibility.css') ?>">
+    <script src="assets/js/accessibility.js?v=<?= filemtime(__DIR__ . '/assets/js/accessibility.js') ?>" defer></script>
 </head>
 <body class="auth-body">
 
@@ -128,6 +130,18 @@ if (isset($_SESSION['user_id'])) {
 
                 <!-- Login Form -->
                 <form id="login-form" novalidate autocomplete="on">
+
+                    <div class="form-group">
+                        <label for="tipo_usuario" class="form-label">
+                            <i data-lucide="users"></i> Entrar como
+                        </label>
+                        <div class="input-wrapper">
+                            <select id="tipo_usuario" name="tipo_usuario" class="form-control form-select" required aria-required="true">
+                                <option value="aluno" selected>Aluno</option>
+                                <option value="professor">Professor</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <!-- Email -->
                     <div class="form-group">
@@ -266,6 +280,7 @@ if (isset($_SESSION['user_id'])) {
 
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('senha').value;
+            const tipoUsuario = document.getElementById('tipo_usuario').value;
 
             // Client-side validation
             if (!email) { showError('Por favor, informe seu e-mail.'); return; }
@@ -277,6 +292,7 @@ if (isset($_SESSION['user_id'])) {
                 const formData = new FormData();
                 formData.append('email', email);
                 formData.append('senha', senha);
+                formData.append('tipo_usuario', tipoUsuario);
 
                 const response = await fetch('api/login.php', {
                     method: 'POST',
@@ -295,7 +311,7 @@ if (isset($_SESSION['user_id'])) {
                     btnLogin.querySelector('.btn-loading').innerHTML =
                         '<span class="spinner"></span> Entrando...';
                     setTimeout(function () {
-                        window.location.href = 'dashboard.php';
+                        window.location.href = data.redirect || 'dashboard.php';
                     }, 600);
                 } else {
                     showError(data.message || 'Erro ao fazer login. Tente novamente.');

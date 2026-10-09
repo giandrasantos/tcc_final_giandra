@@ -13,6 +13,10 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+if (($_SESSION['tipo_usuario'] ?? '') === 'professor') {
+    header('Location: professor_dashboard.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -29,6 +33,8 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/accessibility.css?v=<?= filemtime(__DIR__ . '/assets/css/accessibility.css') ?>" />
+    <script src="assets/js/accessibility.js?v=<?= filemtime(__DIR__ . '/assets/js/accessibility.js') ?>" defer></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -579,10 +585,10 @@ if (session_status() === PHP_SESSION_NONE) {
             font-family: var(--font-display);
             font-size: clamp(3rem, 9vw, 7rem);
             font-weight: 900;
-            line-height: 0.95;
+            line-height: 1.1;
             letter-spacing: -0.02em;
             margin-bottom: 1.5rem;
-            overflow: hidden;
+            overflow: visible;
         }
         .hero-title-line {
             display: block;
@@ -1757,110 +1763,6 @@ if (session_status() === PHP_SESSION_NONE) {
         </a>
     </div>
 </section>
-
-
-<!-- ======================================================================
-     FOOTER
-====================================================================== -->
-<footer id="footer" role="contentinfo">
-    <div class="footer-grid">
-
-        <!-- Brand Column -->
-        <div class="footer-brand">
-            <div class="footer-brand-logo">
-                <div class="footer-brand-icon" aria-hidden="true">
-                    <i data-lucide="gamepad-2"></i>
-                </div>
-                <span class="footer-brand-name">STUDIO GAME OVER</span>
-            </div>
-            <p class="footer-tagline">
-                Transformando o aprendizado em aventura desde 2025. Educação de qualidade por meio da gamificação.
-            </p>
-            <p class="footer-copy">Projeto acadêmico — TCC · 2025</p>
-        </div>
-
-        <!-- Links Column -->
-        <nav aria-label="Links da plataforma">
-            <h3 class="footer-col-title">Plataforma</h3>
-            <ul class="footer-links">
-                <li>
-                    <a href="dashboard.php" class="footer-link">
-                        <i data-lucide="layout-dashboard"></i>
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="jogos/matematica.php" class="footer-link">
-                        <i data-lucide="sigma"></i>
-                        Jogo de Matemática
-                    </a>
-                </li>
-                <li>
-                    <a href="jogos/portugues.php" class="footer-link">
-                        <i data-lucide="book-open"></i>
-                        Jogo de Português
-                    </a>
-                </li>
-                <li>
-                    <a href="ranking.php" class="footer-link">
-                        <i data-lucide="trophy"></i>
-                        Ranking
-                    </a>
-                </li>
-                <li>
-                    <a href="historico.php" class="footer-link">
-                        <i data-lucide="clock"></i>
-                        Histórico
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- About Column -->
-        <nav aria-label="Informações sobre o projeto">
-            <h3 class="footer-col-title">Sobre</h3>
-            <ul class="footer-links">
-                <li>
-                    <a href="cadastro.php" class="footer-link">
-                        <i data-lucide="user-plus"></i>
-                        Criar Conta
-                    </a>
-                </li>
-                <li>
-                    <a href="login.php" class="footer-link">
-                        <i data-lucide="log-in"></i>
-                        Entrar
-                    </a>
-                </li>
-                <li>
-                    <a href="#about" class="footer-link">
-                        <i data-lucide="info"></i>
-                        O Projeto
-                    </a>
-                </li>
-                <li>
-                    <a href="#how" class="footer-link">
-                        <i data-lucide="help-circle"></i>
-                        Como Funciona
-                    </a>
-                </li>
-                <li class="footer-link" style="color:var(--clr-text-dim); font-size:0.78rem; margin-top:0.5rem; display:block;">
-                    <i data-lucide="code-2" style="width:13px;height:13px;opacity:0.4;"></i>
-                    Dev: Studio Game Over
-                </li>
-            </ul>
-        </nav>
-
-    </div>
-
-    <!-- Bottom bar -->
-    <div class="footer-bottom">
-        <p class="footer-bottom-text">
-            © 2025 Studio Game Over. Todos os direitos reservados.
-        </p>
-        <span class="footer-version">MathPlay Solutions v1.0</span>
-    </div>
-</footer>
 
 
 <!-- ======================================================================

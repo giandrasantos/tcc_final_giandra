@@ -20,27 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
         phraseElement.textContent = randomPhrase;
     }
 
-    // Number counting animation for stats
-    document.querySelectorAll('.stat-count').forEach(el => {
-        const target = parseInt(el.getAttribute('data-target') || el.textContent, 10);
-        if (isNaN(target) || target <= 0) return;
-
-        let current = 0;
-        const step = Math.max(1, Math.ceil(target / 30));
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-            }
-            el.textContent = current;
-        }, 30);
-    });
-
     // XP Progress Fill Animation
-    const xpFill = document.getElementById('dashboard-xp-fill');
+    const xpFill = document.getElementById('xpBarFill');
     if (xpFill) {
-        const targetWidth = xpFill.getAttribute('data-width') || '0%';
+        const progress = Number(xpFill.dataset.target);
+        const targetWidth = `${Math.min(100, Math.max(0, Number.isFinite(progress) ? progress : 0))}%`;
         setTimeout(() => {
             xpFill.style.width = targetWidth;
         }, 200);

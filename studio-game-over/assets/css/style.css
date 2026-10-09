@@ -7,6 +7,8 @@
    1. CSS CUSTOM PROPERTIES (DESIGN TOKENS)
    -------------------------------------------------------------------------- */
 :root {
+  font-size: calc(100% * var(--accessibility-font-scale, 1));
+
   /* Brand Colors — Pink & Purple Theme */
   --primary:         #9D4EDD;   /* Electric Purple / Roxo Vibrante */
   --primary-light:   #C77DFF;   /* Soft Light Purple / Roxo Claro */
@@ -115,6 +117,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#main-content {
+  min-width: 0;
+  padding-top: 70px;
 }
 
 html {
@@ -515,6 +526,34 @@ small,
 .text-2xl  { font-size: var(--text-2xl); }
 .text-3xl  { font-size: var(--text-3xl); }
 
+/* Text classes used across the PHP pages */
+.text-primary   { color: var(--primary-light); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+.text-accent    { color: var(--accent); }
+.text-success   { color: var(--success); }
+.text-danger    { color: var(--danger); }
+.text-warning   { color: var(--warning); }
+
+.fs-1 { font-size: var(--text-5xl); }
+.fs-2 { font-size: var(--text-4xl); }
+.fs-3 { font-size: var(--text-3xl); }
+.fs-4 { font-size: var(--text-2xl); }
+.fs-5 { font-size: var(--text-xl); }
+.fs-6 { font-size: var(--text-lg); }
+
+.small {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.display-title {
+  font-size: clamp(1.75rem, 4vw, var(--text-5xl));
+  line-height: 1.15;
+}
+
+.text-decoration-none { text-decoration: none; }
+
 .uppercase   { text-transform: uppercase; }
 .lowercase   { text-transform: lowercase; }
 .capitalize  { text-transform: capitalize; }
@@ -576,6 +615,16 @@ small,
 
 .border { border: 1px solid var(--border-color); }
 .border-light { border: 1px solid var(--border-light); }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  min-width: 640px;
+}
 
 
 /* --------------------------------------------------------------------------
@@ -2374,7 +2423,35 @@ textarea.form-control {
   min-height: 64px;
   backdrop-filter: blur(10px);
   position: relative;
-  overflow: hidden;
+  min-width: 0;
+  height: auto;
+  overflow: visible;
+}
+
+.question-title,
+.option-text {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.question-title {
+  line-height: 1.45;
+}
+
+.answers-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.answer-option .option-text {
+  flex: 1 1 0%;
+  line-height: 1.45;
+}
+
+.answer-option .option-pill {
+  flex: 0 0 auto;
 }
 
 .answer-option:hover:not(.selected):not(.correct):not(.incorrect) {
@@ -3666,4 +3743,3 @@ textarea.form-control {
     text-align: center;
   }
 }
-

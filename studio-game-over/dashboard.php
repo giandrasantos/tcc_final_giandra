@@ -5,14 +5,14 @@
  *
  * Requires authenticated session. Shows XP/Level progress, stats,
  * game cards with difficulty selectors, achievements gallery,
- * recent matches table, and a motivational quote.
+ * and a motivational quote.
  */
 
 require_once 'config/database.php';
 require_once 'includes/auth.php';
 
 // auth.php already calls session_start() if needed.
-requireAuth();
+requireRole('aluno');
 
 // Refresh nav session cache (keeps nav XP/level in sync)
 refreshSessionCache();
@@ -41,19 +41,6 @@ $_SESSION['user_nome']   = $user['nome'];
 $_SESSION['user_avatar'] = $user['avatar'] ?? '';
 
 // ---------------------------------------------------------------------------
-// Fetch match stats (aggregated)
-// ---------------------------------------------------------------------------
-$stmt = $db->prepare(
-    'SELECT COUNT(*) AS total_partidas,
-            COALESCE(SUM(acertos), 0) AS total_acertos,
-            COALESCE(SUM(erros), 0)   AS total_erros
-       FROM matches
-      WHERE user_id = ?'
-);
-$stmt->execute([$user_id]);
-$stats = $stmt->fetch();
-
-// ---------------------------------------------------------------------------
 // Fetch per-game progress
 // ---------------------------------------------------------------------------
 $stmt = $db->prepare('SELECT * FROM progress WHERE user_id = ?');
@@ -76,18 +63,6 @@ $stmt = $db->prepare('
 ');
 $stmt->execute([$user_id]);
 $achievements = $stmt->fetchAll();
-
-// ---------------------------------------------------------------------------
-// Fetch recent matches (last 5)
-// ---------------------------------------------------------------------------
-$stmt = $db->prepare(
-    'SELECT * FROM matches
-      WHERE user_id = ?
-      ORDER BY data_partida DESC
-      LIMIT 5'
-);
-$stmt->execute([$user_id]);
-$recentMatches = $stmt->fetchAll();
 
 // ---------------------------------------------------------------------------
 // Level / XP calculations
@@ -123,17 +98,6 @@ $prevLevelXP  = $levelBaseXP[$currentLevel]     ?? 0;
 $xpRange      = max(1, $nextLevelXP - $prevLevelXP);
 $xpProgress   = min(100, max(0, round((($currentXP - $prevLevelXP) / $xpRange) * 100)));
 $levelName    = $levelNames[$currentLevel] ?? 'Mestre';
-
-// ---------------------------------------------------------------------------
-// Hit-rate calculation
-// ---------------------------------------------------------------------------
-$totalAcertos   = (int) ($stats['total_acertos'] ?? 0);
-$totalErros     = (int) ($stats['total_erros']   ?? 0);
-$totalPartidas  = (int) ($stats['total_partidas'] ?? 0);
-$totalRespostas = $totalAcertos + $totalErros;
-$taxaAcerto     = $totalRespostas > 0
-    ? round(($totalAcertos / $totalRespostas) * 100)
-    : 0;
 
 // ---------------------------------------------------------------------------
 // Avatar URL
@@ -241,95 +205,7 @@ require_once 'includes/header.php';
             </div>
         </div>
 
-        <!-- Quick action -->
-        <div class="banner-cta">
-            <a href="jogos/matematica.php" class="btn btn-banner-play">
-                <i data-lucide="play-circle" aria-hidden="true"></i>
-                Jogar Agora
-            </a>
-            <a href="perfil.php" class="btn btn-banner-profile">
-                <i data-lucide="user-circle" aria-hidden="true"></i>
-                Meu Perfil
-            </a>
-        </div>
-
     </section><!-- /.welcome-banner -->
-
-
-    <!-- ===================================================================== -->
-    <!-- 2. STATS GRID                                                          -->
-    <!-- ===================================================================== -->
-    <section class="stats-section" aria-label="Estatísticas gerais">
-        <div class="stats-grid">
-
-            <!-- Partidas -->
-            <div class="stat-card stat-card--blue" data-animate-in>
-                <div class="stat-card-icon-bg" aria-hidden="true">
-                    <i data-lucide="gamepad-2"></i>
-                </div>
-                <div class="stat-card-body">
-                    <p class="stat-label">Total de Partidas</p>
-                    <p
-                        class="stat-value counter"
-                        data-target="<?= $totalPartidas ?>"
-                        aria-label="<?= $totalPartidas ?> partidas jogadas"
-                    >0</p>
-                </div>
-                <i data-lucide="gamepad-2" class="stat-card-icon-fg" aria-hidden="true"></i>
-            </div>
-
-            <!-- Acertos -->
-            <div class="stat-card stat-card--green" data-animate-in>
-                <div class="stat-card-icon-bg" aria-hidden="true">
-                    <i data-lucide="check-circle-2"></i>
-                </div>
-                <div class="stat-card-body">
-                    <p class="stat-label">Total de Acertos</p>
-                    <p
-                        class="stat-value counter"
-                        data-target="<?= $totalAcertos ?>"
-                        aria-label="<?= $totalAcertos ?> acertos"
-                    >0</p>
-                </div>
-                <i data-lucide="check-circle-2" class="stat-card-icon-fg" aria-hidden="true"></i>
-            </div>
-
-            <!-- Erros -->
-            <div class="stat-card stat-card--red" data-animate-in>
-                <div class="stat-card-icon-bg" aria-hidden="true">
-                    <i data-lucide="x-circle"></i>
-                </div>
-                <div class="stat-card-body">
-                    <p class="stat-label">Total de Erros</p>
-                    <p
-                        class="stat-value counter"
-                        data-target="<?= $totalErros ?>"
-                        aria-label="<?= $totalErros ?> erros"
-                    >0</p>
-                </div>
-                <i data-lucide="x-circle" class="stat-card-icon-fg" aria-hidden="true"></i>
-            </div>
-
-            <!-- Taxa de Acerto -->
-            <div class="stat-card stat-card--<?= $taxaAcerto >= 70 ? 'gold' : ($taxaAcerto >= 50 ? 'blue' : 'red') ?>" data-animate-in>
-                <div class="stat-card-icon-bg" aria-hidden="true">
-                    <i data-lucide="target"></i>
-                </div>
-                <div class="stat-card-body">
-                    <p class="stat-label">Taxa de Acerto</p>
-                    <p
-                        class="stat-value counter"
-                        data-target="<?= $taxaAcerto ?>"
-                        data-suffix="%"
-                        aria-label="<?= $taxaAcerto ?>% de taxa de acerto"
-                    >0%</p>
-                </div>
-                <i data-lucide="target" class="stat-card-icon-fg" aria-hidden="true"></i>
-            </div>
-
-        </div>
-    </section><!-- /.stats-section -->
-
 
     <!-- ===================================================================== -->
     <!-- 3. GAME CARDS SECTION                                                  -->
@@ -372,39 +248,18 @@ require_once 'includes/header.php';
                     </div>
                 </div>
 
-                <div class="difficulty-selector" role="group" aria-label="Selecionar dificuldade para Matemática">
-                    <button
-                        type="button"
-                        class="diff-btn diff-btn--easy active"
-                        data-game="matematica"
-                        data-diff="facil"
-                        aria-pressed="true"
-                    >Fácil</button>
-                    <button
-                        type="button"
-                        class="diff-btn diff-btn--medium"
-                        data-game="matematica"
-                        data-diff="medio"
-                        aria-pressed="false"
-                    >Médio</button>
-                    <button
-                        type="button"
-                        class="diff-btn diff-btn--hard"
-                        data-game="matematica"
-                        data-diff="dificil"
-                        aria-pressed="false"
-                    >Difícil</button>
-                </div>
-
-                <a
-                    href="jogos/matematica.php?dificuldade=facil"
-                    class="btn btn-play-game"
-                    id="playMath"
-                    aria-label="Jogar Desafio Matemático"
-                >
-                    <i data-lucide="play" aria-hidden="true"></i>
-                    JOGAR AGORA
-                </a>
+                <form class="game-play-form" action="jogos/matematica.php" method="get">
+                    <label class="text-secondary small" for="math-difficulty">Escolha o nível do jogo:</label>
+                    <select class="game-difficulty-select" id="math-difficulty" name="dificuldade">
+                        <option value="facil">Fácil</option>
+                        <option value="medio">Médio</option>
+                        <option value="dificil">Difícil</option>
+                    </select>
+                    <button type="submit" class="btn btn-play-game" aria-label="Jogar Desafio Matemático">
+                        <i data-lucide="play" aria-hidden="true"></i>
+                        JOGAR AGORA
+                    </button>
+                </form>
 
                 <!-- Decorative corner badge -->
                 <span class="game-card-badge" aria-hidden="true">MATH</span>
@@ -437,39 +292,18 @@ require_once 'includes/header.php';
                     </div>
                 </div>
 
-                <div class="difficulty-selector" role="group" aria-label="Selecionar dificuldade para Palavras">
-                    <button
-                        type="button"
-                        class="diff-btn diff-btn--easy active"
-                        data-game="portugues"
-                        data-diff="facil"
-                        aria-pressed="true"
-                    >Fácil</button>
-                    <button
-                        type="button"
-                        class="diff-btn diff-btn--medium"
-                        data-game="portugues"
-                        data-diff="medio"
-                        aria-pressed="false"
-                    >Médio</button>
-                    <button
-                        type="button"
-                        class="diff-btn diff-btn--hard"
-                        data-game="portugues"
-                        data-diff="dificil"
-                        aria-pressed="false"
-                    >Difícil</button>
-                </div>
-
-                <a
-                    href="jogos/portugues.php?dificuldade=facil"
-                    class="btn btn-play-game"
-                    id="playPortugues"
-                    aria-label="Jogar Desafio das Palavras"
-                >
-                    <i data-lucide="play" aria-hidden="true"></i>
-                    JOGAR AGORA
-                </a>
+                <form class="game-play-form" action="jogos/portugues.php" method="get">
+                    <label class="text-secondary small" for="portugues-difficulty">Escolha o nível do jogo:</label>
+                    <select class="game-difficulty-select" id="portugues-difficulty" name="dificuldade">
+                        <option value="facil">Fácil</option>
+                        <option value="medio">Médio</option>
+                        <option value="dificil">Difícil</option>
+                    </select>
+                    <button type="submit" class="btn btn-play-game" aria-label="Jogar Desafio das Palavras">
+                        <i data-lucide="play" aria-hidden="true"></i>
+                        JOGAR AGORA
+                    </button>
+                </form>
 
                 <!-- Decorative corner badge -->
                 <span class="game-card-badge" aria-hidden="true">WORDS</span>
@@ -549,94 +383,11 @@ require_once 'includes/header.php';
     </section><!-- /.achievements-section -->
 
 
-    <!-- ===================================================================== -->
-    <!-- 5. RECENT ACTIVITY                                                     -->
-    <!-- ===================================================================== -->
-    <?php if (!empty($recentMatches)): ?>
-    <section class="activity-section" aria-label="Últimas partidas">
-        <div class="section-header">
-            <h2 class="section-title">
-                <i data-lucide="clock-3" aria-hidden="true"></i>
-                Últimas Partidas
-            </h2>
-            <a href="historico.php" class="section-link">
-                Ver histórico completo
-                <i data-lucide="arrow-right" aria-hidden="true"></i>
-            </a>
-        </div>
-
-        <div class="activity-table-wrap">
-            <table class="activity-table" aria-label="Histórico das 5 últimas partidas">
-                <thead>
-                    <tr>
-                        <th scope="col"><i data-lucide="joystick" aria-hidden="true"></i> Jogo</th>
-                        <th scope="col"><i data-lucide="sliders-horizontal" aria-hidden="true"></i> Dificuldade</th>
-                        <th scope="col"><i data-lucide="star" aria-hidden="true"></i> Pontuação</th>
-                        <th scope="col"><i data-lucide="check-circle-2" aria-hidden="true"></i> Acertos</th>
-                        <th scope="col"><i data-lucide="x-circle" aria-hidden="true"></i> Erros</th>
-                        <th scope="col"><i data-lucide="calendar" aria-hidden="true"></i> Data</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($recentMatches as $match):
-                        $jogoName = match(strtolower($match['jogo'] ?? '')) {
-                            'matematica', 'matemática' => '🧠 Matemática',
-                            'portugues',  'português'  => '📚 Português',
-                            default                    => htmlspecialchars($match['jogo'] ?? '—', ENT_QUOTES, 'UTF-8'),
-                        };
-                        $diffLabel = match(strtolower($match['dificuldade'] ?? '')) {
-                            'facil',  'fácil'  => '<span class="diff-badge diff-badge--easy">Fácil</span>',
-                            'medio',  'médio'  => '<span class="diff-badge diff-badge--medium">Médio</span>',
-                            'dificil','difícil' => '<span class="diff-badge diff-badge--hard">Difícil</span>',
-                            default             => htmlspecialchars($match['dificuldade'] ?? '—', ENT_QUOTES, 'UTF-8'),
-                        };
-                        $matchDate = !empty($match['data_partida'])
-                            ? date('d/m/Y H:i', strtotime($match['data_partida']))
-                            : '—';
-                        $acertosNum = (int) ($match['acertos'] ?? 0);
-                        $errosNum   = (int) ($match['erros']   ?? 0);
-                        $pontuacao  = (int) ($match['pontuacao'] ?? 0);
-                    ?>
-                    <tr>
-                        <td class="activity-game"><?= $jogoName ?></td>
-                        <td><?= $diffLabel ?></td>
-                        <td class="activity-score"><?= number_format($pontuacao, 0, ',', '.') ?></td>
-                        <td class="activity-hits"><span class="hits-badge"><?= $acertosNum ?></span></td>
-                        <td class="activity-miss"><span class="miss-badge"><?= $errosNum ?></span></td>
-                        <td class="activity-date"><?= $matchDate ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
-    </section><!-- /.activity-section -->
-    <?php else: ?>
-    <section class="activity-section" aria-label="Sem partidas recentes">
-        <div class="section-header">
-            <h2 class="section-title">
-                <i data-lucide="clock-3" aria-hidden="true"></i>
-                Últimas Partidas
-            </h2>
-        </div>
-        <div class="empty-state">
-            <span class="empty-state-emoji" aria-hidden="true">🎮</span>
-            <p class="empty-state-text">Você ainda não jogou nenhuma partida.</p>
-            <a href="jogos/matematica.php" class="btn btn-primary">
-                <i data-lucide="play-circle" aria-hidden="true"></i>
-                Comece a Jogar!
-            </a>
-        </div>
-    </section>
-    <?php endif; ?>
-
-
-
 </div><!-- /.dashboard-wrap -->
 
 <!-- =========================================================================
      Dashboard JavaScript
      ========================================================================= -->
-<script src="assets/js/dashboard.js" defer></script>
+<script src="assets/js/dashboard.js?v=<?= filemtime(__DIR__ . '/assets/js/dashboard.js') ?>" defer></script>
 
 <?php require_once 'includes/footer.php'; ?>

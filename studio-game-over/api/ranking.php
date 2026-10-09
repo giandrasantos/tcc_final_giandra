@@ -31,17 +31,10 @@ session_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    exit(json_encode([
-        'success' => false,
-        'message' => 'Não autenticado. Faça login para continuar.',
-    ]));
-}
-
 // ── Dependencies ──────────────────────────────────────────────────────────────
 require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/includes/auth.php';
+requireApiRole('aluno');
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 function jsonError(int $code, string $message): never
@@ -84,6 +77,7 @@ try {
                     u.avatar,
                     u.pontuacao AS pontuacao
                FROM users AS u
+              WHERE u.tipo_usuario = \'aluno\'
               ORDER BY u.pontuacao DESC, u.xp DESC
               LIMIT :lim'
         );
@@ -95,7 +89,8 @@ try {
         $stmtPos = $pdo->prepare(
             'SELECT COUNT(*) + 1 AS posicao
                FROM users
-              WHERE pontuacao > (
+              WHERE tipo_usuario = \'aluno\'
+                AND pontuacao > (
                         SELECT pontuacao FROM users WHERE id = :uid
                     )'
         );
@@ -113,6 +108,7 @@ try {
                     pontuacao AS pontuacao
                FROM users
               WHERE id = :uid
+                AND tipo_usuario = \'aluno\'
               LIMIT 1'
         );
         $stmtSelf->execute([':uid' => $userId]);
@@ -132,7 +128,8 @@ try {
                     p.melhor_pontuacao    AS pontuacao
                FROM progress AS p
                JOIN users AS u ON u.id = p.user_id
-              WHERE p.jogo = :jogo
+              WHERE u.tipo_usuario = \'aluno\'
+                AND p.jogo = :jogo
               ORDER BY p.melhor_pontuacao DESC, u.xp DESC
               LIMIT :lim'
         );
@@ -144,9 +141,11 @@ try {
         // Current user's position within the jogo ranking
         $stmtPos = $pdo->prepare(
             'SELECT COUNT(*) + 1 AS posicao
-               FROM progress
-              WHERE jogo = :jogo
-                AND melhor_pontuacao > COALESCE(
+               FROM progress p
+               JOIN users u ON u.id = p.user_id
+              WHERE u.tipo_usuario = \'aluno\'
+                AND p.jogo = :jogo
+                AND p.melhor_pontuacao > COALESCE(
                         (SELECT melhor_pontuacao FROM progress WHERE user_id = :uid AND jogo = :jogo2),
                         -1
                     )'
@@ -166,6 +165,7 @@ try {
                FROM users AS u
           LEFT JOIN progress AS p ON p.user_id = u.id AND p.jogo = :jogo
               WHERE u.id = :uid
+                AND u.tipo_usuario = \'aluno\'
               LIMIT 1'
         );
         $stmtSelf->execute([':jogo' => $jogo, ':uid' => $userId]);

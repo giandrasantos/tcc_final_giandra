@@ -249,7 +249,8 @@
         document.getElementById('res-erros').textContent = gameState.erros;
         document.getElementById('res-xp').textContent = '+' + gameState.xpGained + ' XP';
 
-        // Save Match to Backend
+        const saveStatus = document.getElementById('save-status');
+        let saveData;
         try {
             const saveRes = await fetch('../api/salvar-partida.php', {
                 method: 'POST',
@@ -263,8 +264,22 @@
                     xp_ganho: gameState.xpGained
                 })
             });
-            const saveData = await saveRes.json();
+            saveData = await saveRes.json();
+            if (!saveRes.ok || !saveData.success) {
+                throw new Error(saveData.message || 'Não foi possível salvar a partida.');
+            }
+            saveStatus.textContent = 'Partida salva! Seu painel e histórico foram atualizados.';
+            saveStatus.className = 'text-success';
+        } catch (err) {
+            console.error('Error saving completed game:', err);
+            saveStatus.textContent = err instanceof Error
+                ? err.message
+                : 'Não foi possível salvar a partida. Tente novamente.';
+            saveStatus.className = 'text-danger';
+            return;
+        }
 
+        try {
             // Check Achievements
             const achRes = await fetch('../api/conquistas.php', {
                 method: 'POST',
@@ -298,7 +313,7 @@
                 window.showToast(`🎉 PARABÉNS! Você subiu para o Nível ${saveData.new_nivel} — ${saveData.novo_nivel_nome}!`, 'success');
             }
         } catch (err) {
-            console.error('Error finishing game:', err);
+            console.error('Error checking achievements:', err);
         }
     }
 

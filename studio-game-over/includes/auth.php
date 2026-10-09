@@ -45,7 +45,9 @@ function isLoggedIn(): bool
 function requireAuth(string $message = ''): void
 {
     if (!isLoggedIn()) {
-        $redirect = '/login.php';
+        $scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+        $loginPath = str_ends_with($scriptDirectory, '/jogos') ? '../login.php' : 'login.php';
+        $redirect = $loginPath;
 
         if ($message !== '') {
             $redirect .= '?msg=' . urlencode($message);
@@ -58,6 +60,84 @@ function requireAuth(string $message = ''): void
 
         header('Location: ' . $redirect);
         exit;
+    }
+}
+
+function requireRole(string $requiredRole): void
+{
+    if (!in_array($requiredRole, ['aluno', 'professor'], true)) {
+        throw new InvalidArgumentException('Tipo de conta inválido.');
+    }
+
+    requireAuth();
+
+    $pdo = getDB();
+    $stmt = $pdo->prepare('SELECT tipo_usuario FROM users WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => (int) $_SESSION['user_id']]);
+    $role = $stmt->fetchColumn();
+
+    if (!in_array($role, ['aluno', 'professor'], true)) {
+        $_SESSION = [];
+        session_destroy();
+        header('Location: login.php');
+        exit;
+    }
+
+    $_SESSION['tipo_usuario'] = $role;
+    if ($role !== $requiredRole) {
+        $scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+        $relativePrefix = str_ends_with($scriptDirectory, '/jogos') ? '../' : '';
+        $dashboardPath = $role === 'professor' ? 'professor_dashboard.php' : 'dashboard.php';
+        header('Location: ' . $relativePrefix . $dashboardPath);
+        exit;
+    }
+}
+
+function requireApiRole(string $requiredRole): void
+{
+    if (!in_array($requiredRole, ['aluno', 'professor'], true)) {
+        throw new InvalidArgumentException('Tipo de conta inválido.');
+    }
+
+    if (!isLoggedIn()) {
+        http_response_code(401);
+        exit(json_encode([
+            'success' => false,
+            'message' => 'Não autenticado. Faça login para continuar.',
+        ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+    }
+
+    try {
+        $pdo = getDB();
+        $stmt = $pdo->prepare('SELECT tipo_usuario FROM users WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => (int) $_SESSION['user_id']]);
+        $role = $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        error_log('[auth.php] requireApiRole() failed: ' . $e->getMessage());
+        http_response_code(500);
+        exit(json_encode([
+            'success' => false,
+            'message' => 'Não foi possível validar o tipo da conta.',
+        ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+    }
+
+    if (!in_array($role, ['aluno', 'professor'], true)) {
+        $_SESSION = [];
+        session_destroy();
+        http_response_code(401);
+        exit(json_encode([
+            'success' => false,
+            'message' => 'Sessão inválida. Faça login novamente.',
+        ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+    }
+
+    $_SESSION['tipo_usuario'] = $role;
+    if ($role !== $requiredRole) {
+        http_response_code(403);
+        exit(json_encode([
+            'success' => false,
+            'message' => 'Sua conta não tem permissão para esta operação.',
+        ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
     }
 }
 
@@ -121,7 +201,7 @@ function refreshSessionCache(): void
 
     try {
         $stmt = $pdo->prepare(
-            'SELECT nome, nivel, xp, avatar
+            'SELECT nome, nivel, xp, avatar, tipo_usuario
                FROM users
               WHERE id = :id
               LIMIT 1'
@@ -135,6 +215,7 @@ function refreshSessionCache(): void
             $_SESSION['user_nivel']  = $row['nivel'];
             $_SESSION['user_xp']     = $row['xp'];
             $_SESSION['user_avatar'] = $row['avatar'];
+            $_SESSION['tipo_usuario'] = $row['tipo_usuario'];
         }
     } catch (PDOException $e) {
         error_log('[auth.php] refreshSessionCache() failed: ' . $e->getMessage());

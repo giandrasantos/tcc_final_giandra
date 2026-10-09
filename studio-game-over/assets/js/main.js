@@ -9,16 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    // Mobile nav menu toggle
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            const open = navLinks.classList.toggle('nav-menu--open');
-            hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
-    }
-
     // Global Toast Notification Helper
     window.showToast = function(message, type = 'info') {
         let container = document.getElementById('toast-container');

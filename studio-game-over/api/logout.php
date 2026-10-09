@@ -33,5 +33,6 @@ if (isset($_GET['json'])) {
     exit;
 }
 
-header('Location: ../login.php');
+$logoutRedirect = $logoutRedirect ?? '../index.php';
+header('Location: ' . $logoutRedirect);
 exit;

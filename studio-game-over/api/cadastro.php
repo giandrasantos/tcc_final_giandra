@@ -4,7 +4,7 @@
  * Studio Game Over
  *
  * Accepts: POST
- * Body: nome, username, email, senha, serie, avatar
+ * Body: nome, username, email, senha, tipo_usuario, serie (aluno), avatar (aluno)
  * Returns: JSON {success: bool, message: string}
  */
 
@@ -31,15 +31,25 @@ $nome     = trim(filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_SPECIAL_CHARS)
 $username = strtolower(trim(filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS) ?? ''));
 $email    = trim(filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL) ?? '');
 $senha    = trim($_POST['senha'] ?? '');
+$tipoUsuario = trim($_POST['tipo_usuario'] ?? '');
 $serie    = trim($_POST['serie'] ?? '');
 $avatar   = trim($_POST['avatar'] ?? 'avatar1');
 
 // Validate presence
-if ($nome === '' || $username === '' || $email === '' || $senha === '' || $serie === '') {
+if ($nome === '' || $username === '' || $email === '' || $senha === '' || $tipoUsuario === '') {
     http_response_code(422);
     echo json_encode([
         'success' => false,
-        'message' => 'Todos os campos são obrigatórios.',
+        'message' => 'Preencha os campos obrigatórios e selecione o tipo de conta.',
+    ]);
+    exit;
+}
+
+if (!in_array($tipoUsuario, ['aluno', 'professor'], true)) {
+    http_response_code(422);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Tipo de conta inválido.',
     ]);
     exit;
 }
@@ -74,16 +84,23 @@ if (!preg_match('/^[a-z0-9_]{3,20}$/', $username)) {
     exit;
 }
 
-// Validate serie
-$allowedSeries = ['6°', '7°', '8°', '9°'];
-if (!in_array($serie, $allowedSeries, true)) {
-    // try to match without degree symbol or with alternative format
-    $serieMap = ['6' => '6°', '7' => '7°', '8' => '8°', '9' => '9°', '6º' => '6°', '7º' => '7°', '8º' => '8°', '9º' => '9°'];
-    if (isset($serieMap[$serie])) {
-        $serie = $serieMap[$serie];
-    } else {
-        $serie = '6°';
+if ($tipoUsuario === 'aluno') {
+    $allowedSeries = ['6°', '7°', '8°', '9°'];
+    if (!in_array($serie, $allowedSeries, true)) {
+        $serieMap = ['6' => '6°', '7' => '7°', '8' => '8°', '9' => '9°', '6º' => '6°', '7º' => '7°', '8º' => '8°', '9º' => '9°'];
+        if (isset($serieMap[$serie])) {
+            $serie = $serieMap[$serie];
+        } else {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Selecione uma série escolar válida.',
+            ]);
+            exit;
+        }
     }
+} else {
+    $serie = null;
 }
 
 // Validate avatar
@@ -124,41 +141,48 @@ try {
 
     // Insert user
     $stmt = $pdo->prepare(
-        'INSERT INTO users (nome, username, email, senha, serie, avatar, xp, nivel, pontuacao)
-         VALUES (:nome, :username, :email, :senha, :serie, :avatar, 0, 1, 0)'
+        'INSERT INTO users (nome, username, email, senha, tipo_usuario, serie, avatar, xp, nivel, pontuacao)
+         VALUES (:nome, :username, :email, :senha, :tipo_usuario, :serie, :avatar, 0, 1, 0)'
     );
-    $stmt->execute([
-        ':nome'     => $nome,
-        ':username' => $username,
-        ':email'    => $email,
-        ':senha'    => $senhaHash,
-        ':serie'    => $serie,
-        ':avatar'   => $avatar,
-    ]);
+    $stmt->bindValue(':nome', $nome, PDO::PARAM_STR);
+    $stmt->bindValue(':username', $username, PDO::PARAM_STR);
+    $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+    $stmt->bindValue(':senha', $senhaHash, PDO::PARAM_STR);
+    $stmt->bindValue(':tipo_usuario', $tipoUsuario, PDO::PARAM_STR);
+    $stmt->bindValue(':serie', $serie, $serie === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+    $stmt->bindValue(':avatar', $avatar, PDO::PARAM_STR);
+    $stmt->execute();
 
     $userId = (int) $pdo->lastInsertId();
 
-    // Init progress records
-    $stmtProgress = $pdo->prepare(
-        'INSERT INTO progress (user_id, jogo, melhor_pontuacao, partidas, acertos, erros, progresso)
-         VALUES (:uid, :jogo, 0, 0, 0, 0, 0)'
-    );
-    $stmtProgress->execute([':uid' => $userId, ':jogo' => 'matematica']);
-    $stmtProgress->execute([':uid' => $userId, ':jogo' => 'portugues']);
+    if ($tipoUsuario === 'aluno') {
+        $stmtProgress = $pdo->prepare(
+            'INSERT INTO progress (user_id, jogo, melhor_pontuacao, partidas, acertos, erros, progresso)
+             VALUES (:uid, :jogo, 0, 0, 0, 0, 0)'
+        );
+        $stmtProgress->execute([':uid' => $userId, ':jogo' => 'matematica']);
+        $stmtProgress->execute([':uid' => $userId, ':jogo' => 'portugues']);
+    }
 
     // Authenticate session
     session_regenerate_id(true);
     $_SESSION['user_id']  = $userId;
     $_SESSION['username'] = $username;
     $_SESSION['nome']     = $nome;
+    $_SESSION['tipo_usuario'] = $tipoUsuario;
     $_SESSION['nivel']    = 1;
     $_SESSION['xp']       = 0;
     $_SESSION['avatar']   = $avatar;
+    $_SESSION['user_nome'] = $nome;
+    $_SESSION['user_nivel'] = 1;
+    $_SESSION['user_xp'] = 0;
+    $_SESSION['user_avatar'] = $avatar;
 
     http_response_code(201);
     echo json_encode([
         'success' => true,
         'message' => 'Cadastro realizado com sucesso! Bem-vindo ao MathPlay Solutions.',
+        'redirect' => $tipoUsuario === 'professor' ? 'professor_dashboard.php' : 'dashboard.php',
     ]);
     exit;
 

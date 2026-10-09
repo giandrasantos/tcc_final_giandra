@@ -33,13 +33,23 @@ if (session_status() === PHP_SESSION_NONE) {
 // ── Sanitize & retrieve inputs ────────────────────────────────────────────────
 $email = trim(filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL) ?? '');
 $senha = trim($_POST['senha'] ?? '');
+$tipoUsuario = trim($_POST['tipo_usuario'] ?? '');
 
 // ── Validate presence ────────────────────────────────────────────────────────
-if ($email === '' || $senha === '') {
+if ($email === '' || $senha === '' || $tipoUsuario === '') {
     http_response_code(422);
     echo json_encode([
         'success' => false,
-        'message' => 'E-mail e senha são obrigatórios.',
+        'message' => 'E-mail, senha e tipo de conta são obrigatórios.',
+    ]);
+    exit;
+}
+
+if (!in_array($tipoUsuario, ['aluno', 'professor'], true)) {
+    http_response_code(422);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Selecione um tipo de conta válido.',
     ]);
     exit;
 }
@@ -59,7 +69,7 @@ try {
     $pdo = getDB();
 
     $stmt = $pdo->prepare(
-        'SELECT id, username, nome, senha, nivel, xp, avatar
+        'SELECT id, username, nome, senha, tipo_usuario, nivel, xp, avatar
          FROM users
          WHERE email = :email
          LIMIT 1'
@@ -78,7 +88,7 @@ try {
 }
 
 // ── Verify credentials ────────────────────────────────────────────────────────
-if (!$user || !password_verify($senha, $user['senha'])) {
+if (!$user || !password_verify($senha, $user['senha']) || $user['tipo_usuario'] !== $tipoUsuario) {
     // Uniform message to avoid user enumeration
     http_response_code(401);
     echo json_encode([
@@ -94,14 +104,20 @@ session_regenerate_id(true);
 $_SESSION['user_id']  = (int) $user['id'];
 $_SESSION['username'] = $user['username'];
 $_SESSION['nome']     = $user['nome'];
+$_SESSION['tipo_usuario'] = $user['tipo_usuario'];
 $_SESSION['nivel']    = (int) ($user['nivel'] ?? 1);
 $_SESSION['xp']       = (int) ($user['xp']    ?? 0);
 $_SESSION['avatar']   = $user['avatar'] ?? 'avatar1';
+$_SESSION['user_nome'] = $user['nome'];
+$_SESSION['user_nivel'] = (int) ($user['nivel'] ?? 1);
+$_SESSION['user_xp'] = (int) ($user['xp'] ?? 0);
+$_SESSION['user_avatar'] = $user['avatar'] ?? 'avatar1';
 
 // ── Success response ──────────────────────────────────────────────────────────
 http_response_code(200);
 echo json_encode([
     'success' => true,
     'message' => 'Login realizado com sucesso!',
+    'redirect' => $user['tipo_usuario'] === 'professor' ? 'professor_dashboard.php' : 'dashboard.php',
 ]);
 exit;

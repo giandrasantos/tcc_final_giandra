@@ -19,17 +19,10 @@ session_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    exit(json_encode([
-        'success' => false,
-        'message' => 'Não autenticado. Faça login para continuar.',
-    ]));
-}
-
 // ── Dependencies ──────────────────────────────────────────────────────────────
 require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/includes/auth.php';
+requireApiRole('aluno');
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 function jsonError(int $code, string $message): never

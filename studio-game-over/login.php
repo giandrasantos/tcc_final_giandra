@@ -220,7 +220,7 @@ if (isset($_SESSION['user_id'])) {
 
                 <!-- Footer link -->
                 <p class="auth-card-footer">
-                    Ainda não tem conta?
+                    Você ainda não tem conta?
                     <a href="cadastro.php" class="auth-link">Cadastre-se</a>
                 </p>
 

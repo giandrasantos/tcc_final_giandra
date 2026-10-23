@@ -26,8 +26,9 @@ Plataforma Web Educacional Gamificada desenvolvida para a empresa **Studio Game 
 ## 📁 Estrutura do Projeto
 
 ```
-studio-game-over/
+tcc_final_giandra/
 │
+├── config.php                  ← Configuração do banco e FTP
 ├── index.php                  ← Landing Page pública oficial
 ├── login.php                  ← Login para alunos e professores
 ├── cadastro.php               ← Cadastro para alunos e professores
@@ -90,7 +91,7 @@ studio-game-over/
 ## 🚀 Como Executar o Projeto via XAMPP
 
 1. **Copie a pasta do projeto:**
-   Copie a pasta `studio-game-over` para o diretório `htdocs` do seu XAMPP (exemplo: `C:\xampp\htdocs\studio-game-over`).
+   Copie a pasta `tcc_final_giandra` para o diretório `htdocs` do seu XAMPP (exemplo: `C:\xampp\htdocs\tcc_final_giandra`).
 
 2. **Inicie os serviços no XAMPP Control Panel:**
    - Inicie o **Apache**
@@ -103,7 +104,7 @@ studio-game-over/
    - Clique em **Executar** para criar as tabelas e inserir as 60 questões iniciais e conquistas.
 
 4. **Acesse a Aplicação:**
-   - Abra o navegador no endereço: `http://localhost/studio-game-over`
+   - Abra o navegador no endereço: `http://localhost/tcc_final_giandra`
 
 5. **Banco já existente:**
    - Execute uma vez o arquivo `database/migrations/20261009_add_user_roles.sql` no phpMyAdmin para adicionar o tipo de conta e permitir série vazia para professores.

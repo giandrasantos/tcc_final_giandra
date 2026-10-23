@@ -54,7 +54,7 @@
     async function initGame() {
         showLoading(true);
         try {
-            const res = await fetch(`../api/get-questions.php?jogo=${gameState.jogo}&dificuldade=${gameState.dificuldade}&limit=10`);
+            const res = await fetch(`api/get-questions.php?jogo=${gameState.jogo}&dificuldade=${gameState.dificuldade}&limit=10`);
             const data = await res.json();
 
             if (data.success && data.questions && data.questions.length > 0) {
@@ -139,7 +139,7 @@
         document.getElementById('btn-responder').disabled = true;
 
         try {
-            const res = await fetch('../api/verify-answer.php', {
+            const res = await fetch('api/verify-answer.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -252,7 +252,7 @@
         const saveStatus = document.getElementById('save-status');
         let saveData;
         try {
-            const saveRes = await fetch('../api/salvar-partida.php', {
+            const saveRes = await fetch('api/salvar-partida.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -281,7 +281,7 @@
 
         try {
             // Check Achievements
-            const achRes = await fetch('../api/conquistas.php', {
+            const achRes = await fetch('api/conquistas.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -328,7 +328,7 @@
             <div class="card text-center p-5 border-danger">
                 <h2 class="text-danger font-display">Ops! Ocorreu um problema</h2>
                 <p class="text-secondary">${msg}</p>
-                <a href="portugues.php" class="btn btn-accent mt-3">Tentar Novamente</a>
+                <a href="jogos/portugues.php" class="btn btn-accent mt-3">Tentar Novamente</a>
             </div>
         `;
     }

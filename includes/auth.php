@@ -45,9 +45,7 @@ function isLoggedIn(): bool
 function requireAuth(string $message = ''): void
 {
     if (!isLoggedIn()) {
-        $scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
-        $loginPath = str_ends_with($scriptDirectory, '/jogos') ? '../login.php' : 'login.php';
-        $redirect = $loginPath;
+        $redirect = APP_BASE_PATH . 'login.php';
 
         if ($message !== '') {
             $redirect .= '?msg=' . urlencode($message);
@@ -85,10 +83,8 @@ function requireRole(string $requiredRole): void
 
     $_SESSION['tipo_usuario'] = $role;
     if ($role !== $requiredRole) {
-        $scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
-        $relativePrefix = str_ends_with($scriptDirectory, '/jogos') ? '../' : '';
         $dashboardPath = $role === 'professor' ? 'professor_dashboard.php' : 'dashboard.php';
-        header('Location: ' . $relativePrefix . $dashboardPath);
+        header('Location: ' . APP_BASE_PATH . $dashboardPath);
         exit;
     }
 }

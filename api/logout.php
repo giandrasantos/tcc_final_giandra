@@ -6,6 +6,8 @@
 
 declare(strict_types=1);
 
+require_once dirname(__DIR__) . '/config.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -33,6 +35,6 @@ if (isset($_GET['json'])) {
     exit;
 }
 
-$logoutRedirect = $logoutRedirect ?? '../index.php';
+$logoutRedirect = $logoutRedirect ?? APP_BASE_PATH . 'index.php';
 header('Location: ' . $logoutRedirect);
 exit;

@@ -8,8 +8,8 @@
  * and a motivational quote.
  */
 
-require_once 'config/database.php';
-require_once 'includes/auth.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/auth.php';
 
 // auth.php already calls session_start() if needed.
 requireRole('aluno');
@@ -126,7 +126,7 @@ $achievementIcons = ['🏆', '⚡', '🔥', '🎯', '🌟', '💎'];
 $pageTitle = 'Dashboard';
 $extraCss  = ['css/dashboard.css'];
 
-require_once 'includes/header.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- ========================================================================= -->
@@ -390,4 +390,4 @@ require_once 'includes/header.php';
      ========================================================================= -->
 <script src="assets/js/dashboard.js?v=<?= filemtime(__DIR__ . '/assets/js/dashboard.js') ?>" defer></script>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

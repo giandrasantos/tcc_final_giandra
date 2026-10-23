@@ -29,21 +29,21 @@ require_once dirname(__DIR__) . '/includes/header.php';
         </div>
 
         <div class="grid-3 gap-lg my-4">
-            <a href="portugues.php?dificuldade=facil" class="card card-hover text-center p-4 border-success text-decoration-none">
+            <a href="jogos/portugues.php?dificuldade=facil" class="card card-hover text-center p-4 border-success text-decoration-none">
                 <div class="diff-emoji" style="font-size: 2.5rem;">🟢</div>
                 <h3 class="text-success font-display my-2">Fácil</h3>
                 <p class="text-secondary small">Ortografia, acentuação simples, sinônimos e antônimos do dia a dia.</p>
                 <div class="badge badge-easy mt-2">+10 XP / Pontos por acerto</div>
             </a>
 
-            <a href="portugues.php?dificuldade=medio" class="card card-hover text-center p-4 border-warning text-decoration-none">
+            <a href="jogos/portugues.php?dificuldade=medio" class="card card-hover text-center p-4 border-warning text-decoration-none">
                 <div class="diff-emoji" style="font-size: 2.5rem;">🟡</div>
                 <h3 class="text-warning font-display my-2">Médio</h3>
                 <p class="text-secondary small">Concordância verbal, concordância nominal, figuras de linguagem e interpretação.</p>
                 <div class="badge badge-medium mt-2">+20 XP / Pontos por acerto</div>
             </a>
 
-            <a href="portugues.php?dificuldade=dificil" class="card card-hover text-center p-4 border-danger text-decoration-none">
+            <a href="jogos/portugues.php?dificuldade=dificil" class="card card-hover text-center p-4 border-danger text-decoration-none">
                 <div class="diff-emoji" style="font-size: 2.5rem;">🔴</div>
                 <h3 class="text-danger font-display my-2">Difícil</h3>
                 <p class="text-secondary small">Figuras complexas (metonímia, ironia), coesão, coerência e variação linguística.</p>
@@ -52,7 +52,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
         </div>
 
         <div class="mt-3">
-            <a href="../dashboard.php" class="btn btn-outline">
+            <a href="dashboard.php" class="btn btn-outline">
                 <i data-lucide="arrow-left"></i> Voltar ao Dashboard
             </a>
         </div>
@@ -198,13 +198,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
             </div>
 
             <div class="flex justify-center gap-md mt-4 flex-wrap">
-                <a href="portugues.php?dificuldade=<?= $dificuldade ?>" class="btn btn-accent btn-lg">
+                <a href="jogos/portugues.php?dificuldade=<?= $dificuldade ?>" class="btn btn-accent btn-lg">
                     <i data-lucide="rotate-ccw"></i> JOGAR NOVAMENTE
                 </a>
-                <a href="matematica.php" class="btn btn-primary btn-lg">
+                <a href="jogos/matematica.php" class="btn btn-primary btn-lg">
                     <i data-lucide="calculator"></i> DESAFIO MATEMÁTICO
                 </a>
-                <a href="../dashboard.php" class="btn btn-outline btn-lg">
+                <a href="dashboard.php" class="btn btn-outline btn-lg">
                     <i data-lucide="layout-dashboard"></i> DASHBOARD
                 </a>
             </div>
@@ -218,7 +218,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
          data-dificuldade="<?= $dificuldade ?>"
          data-user-id="<?= $_SESSION['user_id'] ?>"></div>
 
-    <script src="../assets/js/portugues.js" defer></script>
+    <script src="assets/js/portugues.js" defer></script>
 <?php endif; ?>
 
 </div>

@@ -17,3 +17,7 @@ define('DB_CHARSET', 'utf8mb4');
 define('FTP_SERVER', 'ftpupload.net');
 define('FTP_USERNAME', getenv('MATHPLAY_FTP_USERNAME') ?: '');
 define('FTP_PASSWORD', getenv('MATHPLAY_FTP_PASSWORD') ?: '');
+
+$scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+$appBasePath = preg_replace('~/(?:api|jogos)$~', '', $scriptDirectory);
+define('APP_BASE_PATH', rtrim($appBasePath, '/') . '/');

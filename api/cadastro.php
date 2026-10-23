@@ -182,7 +182,7 @@ try {
     echo json_encode([
         'success' => true,
         'message' => 'Cadastro realizado com sucesso! Bem-vindo ao MathPlay Solutions.',
-        'redirect' => $tipoUsuario === 'professor' ? 'professor_dashboard.php' : 'dashboard.php',
+        'redirect' => APP_BASE_PATH . ($tipoUsuario === 'professor' ? 'professor_dashboard.php' : 'dashboard.php'),
     ]);
     exit;
 

@@ -6,7 +6,7 @@
  * Provides a singleton PDO connection to the 'mathplay' database.
  */
 
-require_once __DIR__ . '/config.php';
+require_once dirname(__DIR__) . '/config.php';
 
 /**
  * Returns the singleton PDO database instance.

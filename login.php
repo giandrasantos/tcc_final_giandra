@@ -4,7 +4,7 @@
  * Studio Game Over
  */
 
-require_once 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -13,7 +13,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Redirect if already authenticated
 if (isset($_SESSION['user_id'])) {
-    header('Location: ' . (($_SESSION['tipo_usuario'] ?? 'aluno') === 'professor' ? 'professor_dashboard.php' : 'dashboard.php'));
+    $dashboardPath = ($_SESSION['tipo_usuario'] ?? 'aluno') === 'professor'
+        ? 'professor_dashboard.php'
+        : 'dashboard.php';
+    header('Location: ' . APP_BASE_PATH . $dashboardPath);
     exit;
 }
 ?>
@@ -22,6 +25,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="<?= htmlspecialchars(APP_BASE_PATH, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="description" content="MathPlay Solutions — Faça login para continuar jogando">
     <title>Login — MathPlay Solutions</title>
 

@@ -6,7 +6,7 @@
  * Usage:
  *   $pageTitle = 'Dashboard';          // required — used in <title>
  *   $extraCss  = ['css/dashboard.css']; // optional — page-specific CSS
- *   require_once 'includes/header.php';
+ *   require_once __DIR__ . '/includes/header.php';
  *
  * Outputs everything from <!DOCTYPE html> through the closing </nav> tag.
  * Wrap your page content in <main> and close it in the shared footer include.
@@ -59,10 +59,8 @@ $dashboardPath = $isProfessor ? 'professor_dashboard.php' : 'dashboard.php';
 // ---------------------------------------------------------------------------
 // Dynamic relative asset & link base paths (0 hardcoded paths)
 // ---------------------------------------------------------------------------
-$scriptPath  = $_SERVER['PHP_SELF'] ?? '';
-$isSubfolder = (strpos($scriptPath, '/jogos/') !== false);
-$assetBase   = $isSubfolder ? '../assets' : 'assets';
-$linkBase    = $isSubfolder ? '../' : '';
+$assetBase = APP_BASE_PATH . 'assets';
+$linkBase = APP_BASE_PATH;
 
 // Fallback avatar — initials-based placeholder
 $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&background=9D4EDD&color=fff&size=64&font-size=0.45&bold=true';
@@ -72,6 +70,7 @@ $avatarSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sessionNome) . '&b
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="<?= htmlspecialchars(APP_BASE_PATH, ENT_QUOTES, 'UTF-8') ?>" />
     <meta name="description" content="MathPlay Solutions — Plataforma de jogos educativos para matemática e português." />
     <meta name="theme-color" content="#9d4edd" />
 

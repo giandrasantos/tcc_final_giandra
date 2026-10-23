@@ -118,6 +118,6 @@ http_response_code(200);
 echo json_encode([
     'success' => true,
     'message' => 'Login realizado com sucesso!',
-    'redirect' => $user['tipo_usuario'] === 'professor' ? 'professor_dashboard.php' : 'dashboard.php',
+    'redirect' => APP_BASE_PATH . ($user['tipo_usuario'] === 'professor' ? 'professor_dashboard.php' : 'dashboard.php'),
 ]);
 exit;
